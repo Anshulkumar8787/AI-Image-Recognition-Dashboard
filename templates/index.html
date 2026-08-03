@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Image Recognition AI</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="dashboard">
+
+    <!-- Left Panel Starts -->
+    <div class="left-panel">
+
+    <!-- Dashboard Header -->
+
+<div class="dashboard-header">
+
+    <div>
+
+        <h1>🤖 AI Image Recognition Dashboard</h1>
+
+        <p>
+
+            Upload an image or use your webcam to identify objects using Artificial Intelligence.
+
+        </p>
+
+    </div>
+
+    <div class="theme-toggle">
+
+        <button id="themeBtn">
+
+            🌙 Dark Mode
+
+        </button>
+
+    </div>
+
+</div>
+
+    <!-- Upload Form -->
+
+    <form
+        method="POST"
+        enctype="multipart/form-data"
+        id="uploadForm">
+
+        <!-- Drag & Drop Area -->
+
+        <div id="dropArea" class="drop-area">
+
+    <h2>📂 Upload Image</h2>
+
+    <p class="drop-text">
+
+        Drag & Drop an Image Here
+
+    </p>
+
+    <p>or</p>
+
+    <input
+        type="file"
+        id="imageInput"
+        name="image"
+        accept=".jpg,.jpeg,.png"
+        hidden>
+
+    <button
+        type="button"
+        id="browseBtn"
+        class="browse-btn">
+
+        Choose Image
+
+    </button>
+
+</div>
+
+<div class="camera-card">
+
+    <h2>📷 Camera</h2>
+
+    <div class="camera-buttons">
+
+        <button
+            type="button"
+            id="startCameraBtn">
+
+            📷 Open Camera
+
+        </button>
+
+        <button
+            type="button"
+            id="captureBtn"
+            style="display:none;">
+
+            📸 Capture
+
+        </button>
+
+        <button
+            type="button"
+            id="retakeBtn"
+            style="display:none;">
+
+            🔄 Retake
+
+        </button>
+
+    </div>
+
+    <video
+        id="camera"
+        autoplay
+        playsinline
+        style="display:none;">
+
+    </video>
+
+    <canvas
+        id="cameraCanvas"
+        style="display:none;">
+
+    </canvas>
+
+</div>
+
+        <!-- Preview -->
+
+        <div class="preview-card">
+
+    <h2>🖼 Preview</h2>
+
+    <img
+        id="preview"
+        class="preview"
+        style="display:none;">
+
+</div>
+
+        <!-- Loading -->
+
+        <div
+            id="loading"
+            class="loading">
+
+            🤖 AI is analyzing your image...
+
+        </div>
+
+        <!-- Buttons -->
+
+        <div class="button-group">
+
+            <button
+                type="submit"
+                id="predictBtn"
+                class="predict-btn">
+
+                Predict Image
+
+            </button>
+
+            <button
+                type="button"
+                id="clearBtn"
+                class="clear-btn">
+
+                Clear
+
+            </button>
+
+        </div>
+
+    </form>
+
+        </div>
+
+    <!-- Right Panel Starts -->
+    <div class="right-panel">
+
+    {% if image_filename %}
+
+<div class="dashboard-card uploaded-image">
+
+    <h2>🖼 Uploaded Image</h2>
+
+    <img
+        src="{{ url_for('uploaded_file', filename=image_filename) }}"
+        class="result-image"
+        alt="Uploaded Image">
+
+</div>
+
+{% endif %}
+    <!-- Prediction -->
+
+    {% if prediction %}
+
+    <div class="dashboard-card result">
+
+        <h2>🤖 AI Prediction</h2>
+
+        <h3>
+
+            {{ prediction.category }}
+
+        </h3>
+
+        <h4>
+
+            Detail :
+
+            {{ prediction.detail }}
+
+        </h4>
+
+        <h4>
+
+            Confidence :
+
+            {{ prediction.confidence }}%
+
+        </h4>
+
+        <hr>
+
+        <h3>
+
+            Top 5 Predictions
+
+        </h3>
+
+        <table>
+
+            <tr>
+
+                <th>Prediction</th>
+
+                <th>Confidence</th>
+
+            </tr>
+
+            {% for item in prediction.top5 %}
+
+            <tr>
+
+                <td>{{ item.label }}</td>
+
+                <td>{{ item.confidence }}%</td>
+
+            </tr>
+
+            {% endfor %}
+
+        </table>
+
+        <div class="dashboard-card chart-container">
+
+            <h3>Prediction Confidence Chart</h3>
+
+            <canvas id="predictionChart"></canvas>
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+    <!-- Warning -->
+
+    {% if warning %}
+
+    <div class="warning">
+
+        {{ warning }}
+
+    </div>
+
+    {% endif %}
+
+    <div class="dashboard-card download-section">
+
+    <h2>📄 Report</h2>
+
+    <a
+        href="/download-report"
+        class="download-btn">
+
+        Download Prediction Report
+
+    </a>
+
+</div>
+
+
+{% if history %}
+
+<div class="history-section dashboard-card-full">
+
+    <div class="history-header">
+
+    <h2>📜 Prediction History</h2>
+
+    <div class="history-controls">
+
+        <div class="history-search">
+
+            <input
+                type="text"
+                id="historySearch"
+                placeholder="🔍 Search prediction history...">
+
+        </div>
+
+        <div class="history-actions">
+
+            <a
+                href="/clear_history"
+                onclick="return confirm('Are you sure you want to delete the entire history?')">
+
+                <button id="clearHistoryBtn">
+
+                    🗑 Clear History
+
+                </button>
+
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+    <table class="history-table">
+
+        <thead>
+
+            <tr>
+
+                <th>Image</th>
+                <th>Category</th>
+                <th>Detail</th>
+                <th>Confidence</th>
+                <th>Time</th>
+                <th>Delete</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody id="historyTable">
+
+            {% for item in history %}
+
+            <tr>
+
+                <td>{{ item.Image }}</td>
+
+                <td>{{ item.Category }}</td>
+
+                <td>{{ item.Detail }}</td>
+
+                <td>{{ item.Confidence }}%</td>
+
+                <td>{{ item.Time }}</td>
+
+                <td>
+                
+                    <a href="/delete_history/{{ loop.index0 }}"
+                         onclick="return confirm('Delete this prediction?')">
+    
+                            <button
+                                class="delete-history-btn">
+                                🗑
+                            </button>
+                    </a>
+
+                </td>
+
+            </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endif %}
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+
+</html>

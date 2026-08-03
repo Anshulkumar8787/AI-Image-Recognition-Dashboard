@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Virtual Environment
+venv/
+env/
+.venv/
+
+# VS Code
+.vscode/
+
+# PyCharm
+.idea/
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Flask Cache
+instance/
+
+# Python Cache
+.pytest_cache/
+.mypy_cache/
+
+# Generated Reports
+reports/*.pdf
+
+# Uploaded Images
+uploads/*
+
+# Keep Folder
+!uploads/.gitkeep
+
+# History (Optional)
+# Uncomment the next line if you do NOT want prediction history on GitHub
+# history/history.csv
+
+# Logs
+*.log
