@@ -18,6 +18,13 @@ The application allows users to upload images or capture photos using a webcam, 
 
 # 🚀 Features
 
+## AI Image Recognition Dashboard
+
+Live Demo: https://ai-image-recognition-dashboard-production.up.railway.app
+
+GitHub: https://github.com/Anshulkumar8787/AI-Image-Recognition-Dashboard
+
+
 ## 🧠 Artificial Intelligence
 
 - ✅ Image Recognition using TensorFlow MobileNetV2
